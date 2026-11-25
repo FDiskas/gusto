@@ -1,6 +1,8 @@
 import tailwind from 'bun-plugin-tailwind';
 import { rm } from 'node:fs/promises';
 import path from 'node:path';
+import { PRERENDERED_ROOT_ATTRIBUTE } from './src/domain/constants';
+import { renderSignedOutAppHtml } from './src/prerender';
 
 const outdir = path.join(process.cwd(), 'dist');
 await rm(outdir, { recursive: true, force: true });
@@ -31,6 +33,15 @@ for await (const publicFile of new Bun.Glob('**/*').scan('public')) {
   await Bun.write(path.join(outdir, publicFile), Bun.file(path.join('public', publicFile)));
 }
 
+const EMPTY_ROOT = '<div id="root"></div>';
+
+/** Fills the empty root with the landing page HTML so search engines index real content */
+function prerenderRoot(html: string): string {
+  if (!html.includes(EMPTY_ROOT)) throw new Error(`dist/index.html has no ${EMPTY_ROOT} to prerender into`);
+  const prerendered = `<div id="root" ${PRERENDERED_ROOT_ATTRIBUTE}>${renderSignedOutAppHtml()}</div>`;
+  return html.replace(EMPTY_ROOT, prerendered);
+}
+
 const indexPath = path.join(outdir, 'index.html');
 const indexHtml = await Bun.file(indexPath).text();
-await Bun.write(indexPath, indexHtml.replace('</head>', `${PWA_HEAD_TAGS}</head>`));
+await Bun.write(indexPath, prerenderRoot(indexHtml.replace('</head>', `${PWA_HEAD_TAGS}</head>`)));

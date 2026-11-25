@@ -65,11 +65,11 @@ export function LandingPage({
           {/* Hero Visual Card */}
           <div className="relative rounded-3xl overflow-hidden shadow-md mb-7 h-52 sm:h-64 md:h-72 group">
             <img
-              src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=1000&q=80"
+              src="/landing-hero.jpg"
               alt={t('landing.preview.alt')}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/25 to-transparent" />
             <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-xs font-semibold text-ink">
               <FileText className="w-3.5 h-3.5 text-brand" />
               <span>{t('landing.preview.file')}</span>

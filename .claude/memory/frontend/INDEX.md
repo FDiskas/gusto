@@ -1,1 +1,2 @@
+- [landing-prerender](landing-prerender.md) — landing page prerendered at build for SEO, hydrated, session check. tags: seo, prerender, hydration, localStorage
 - [pwa-setup](pwa-setup.md) — manifest, sw.js, icons in public/, injected by build.ts. tags: pwa, manifest, service worker, bun

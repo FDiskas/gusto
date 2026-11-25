@@ -29,6 +29,8 @@ export const CURATED_IMAGES = [
   'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=900&q=80',
 ];
 
+/** Set by `build.ts` on the root element when it contains prerendered HTML that the client must hydrate */
+export const PRERENDERED_ROOT_ATTRIBUTE = 'data-prerendered';
 export const FOLDER_NAME = 'Gusto Family Recipes';
 export const DEFAULT_STORAGE_KEY = 'gusto_demo_recipes_v1';
 export const DEFAULT_COLLAB_KEY = 'gusto_demo_collabs_v1';
