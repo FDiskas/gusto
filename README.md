@@ -1,70 +1,61 @@
-# Getting Started with Create React App
+# Gusto
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Family recipe book that stores every recipe as a Google Doc in a shared Google Drive folder.
+Built with Bun, React 19 and Tailwind CSS 4. The UI is available in Lithuanian and English.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- Browse, search and filter recipes by tag.
+- "Fridge" tab: list what you have and see the best matching recipes.
+- Each recipe is a Google Doc; the optional cover photo is inserted at the top of the Doc at full width.
+- Share the family folder with relatives from inside the app.
+- Demo mode that keeps data in the browser, no Google account needed.
 
-### `npm start`
+## Getting started
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+bun install
+cp .env.example .env   # optional: add your Google Client ID
+bun dev
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+| Command         | What it does                       |
+| --------------- | ---------------------------------- |
+| `bun dev`       | Dev server with hot reload         |
+| `bun start`     | Production server                  |
+| `bun run build` | Production build into `dist/`      |
+| `bun test`      | Unit and render tests              |
+| `bun check`     | Type check                         |
 
-### `npm test`
+## Google sign-in
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Set your OAuth Web Client ID in `.env`:
 
-### `npm run build`
+```bash
+BUN_PUBLIC_GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. In Google Cloud, enable the Google Drive API and the Google Docs API.
+2. Add the app URL (for example `http://localhost:3000`) as an authorized JavaScript origin.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+`BUN_PUBLIC_*` values are included in the browser bundle, so never put secrets there.
+Without the variable, the landing page shows a Client ID input next to the Demo mode button.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Recipe photos
 
-### `npm run eject`
+The photo is resized in the browser, saved in the family Drive folder, and inserted at the top of the
+Google Doc at full text width. The Docs API can only insert images from a public URL, so the photo is
+shared by link for the moment of the insert and the link is removed right after.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Project structure
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+src/
+  App.tsx            Session state and layout
+  components/        UI: landing page, tabs, recipe detail/editor, family sharing modal
+  hooks/             useRecipeLibrary (Drive or demo storage), useToast, useGoogleClientId
+  services/          Google Drive/Docs client, Google sign-in, Google Doc text format
+  domain/            Types, constants, demo data, recipe search and fridge ranking
+  i18n/              Translations (lt, en) and the translate function
+  lib/               Browser image helpers
+```
