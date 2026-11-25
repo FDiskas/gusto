@@ -17,7 +17,12 @@ const makeRecipe = (overrides: Partial<Recipe>): Recipe => ({
 });
 
 const salmon = makeRecipe({ id: 'salmon', title: 'Kepta lašiša', tags: ['quick'], ingredients: ['lašiša', 'citrina'] });
-const soup = makeRecipe({ id: 'soup', title: 'Moliūgų sriuba', tags: ['soups'], ingredients: ['moliūgas', 'česnakas'] });
+const soup = makeRecipe({
+  id: 'soup',
+  title: 'Moliūgų sriuba',
+  tags: ['soups'],
+  ingredients: ['moliūgas', 'česnakas'],
+});
 
 describe('filterRecipes', () => {
   test('returns every recipe for an empty query and the "all" tag', () => {

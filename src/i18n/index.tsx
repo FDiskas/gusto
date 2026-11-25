@@ -9,10 +9,7 @@ export type Translate = (key: TranslationKey, params?: TranslateParams) => strin
 
 const DEFAULT_LANG: Lang = 'lt';
 
-/**
- * Core translation function following `translate-template.ts` convention:
- * interpolates `{{placeholder}}` variables safely.
- */
+/** Looks up a translation (falling back to English, then to the key) and fills `{{placeholder}}` variables */
 export function createTranslator(lang: Lang): Translate {
   return (key, params) => {
     let text: string = translations[lang][key] ?? translations.en[key] ?? key;

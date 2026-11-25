@@ -1,13 +1,15 @@
-import {
-  Users,
-  LogOut,
-  RefreshCw,
-} from 'lucide-react';
+import { Users, LogOut, RefreshCw } from 'lucide-react';
 import { useTranslate } from '@/i18n';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 /** App title bar with language switch, family access, Drive sync and logout */
-export function AppHeader({ collaboratorCount, syncing, onOpenFamily, onSync, onLogout }: {
+export function AppHeader({
+  collaboratorCount,
+  syncing,
+  onOpenFamily,
+  onSync,
+  onLogout,
+}: {
   collaboratorCount: number;
   syncing: boolean;
   onOpenFamily: () => void;
@@ -20,9 +22,7 @@ export function AppHeader({ collaboratorCount, syncing, onOpenFamily, onSync, on
   return (
     <header className="px-5 md:px-8 pt-5 pb-3 flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <span className="text-2xl font-extrabold tracking-tight text-[#2B332D]">
-          {t('app.name')}
-        </span>
+        <span className="text-2xl font-extrabold tracking-tight text-ink">{t('app.name')}</span>
       </div>
 
       <div className="flex items-center gap-2">
@@ -31,7 +31,7 @@ export function AppHeader({ collaboratorCount, syncing, onOpenFamily, onSync, on
         {/* Family Share Button */}
         <button
           onClick={onOpenFamily}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[#EBF1EA] text-[#2D5436] text-xs font-bold hover:bg-[#DCE7DA] transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-brand-soft text-brand-ink text-xs font-bold hover:bg-brand-soft-hover transition-colors cursor-pointer"
           title={t('family.title')}
         >
           <Users className="w-3.5 h-3.5" />
@@ -41,7 +41,7 @@ export function AppHeader({ collaboratorCount, syncing, onOpenFamily, onSync, on
         {onSync && (
           <button
             onClick={onSync}
-            className="w-8 h-8 rounded-full bg-white border border-[#E4E1D6] flex items-center justify-center text-[#3D453F] hover:bg-[#F1EFE7] cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white border border-line flex items-center justify-center text-ink-soft hover:bg-surface-muted cursor-pointer"
             title={t('header.sync')}
           >
             <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
@@ -50,7 +50,7 @@ export function AppHeader({ collaboratorCount, syncing, onOpenFamily, onSync, on
 
         <button
           onClick={onLogout}
-          className="w-8 h-8 rounded-full bg-white border border-[#E4E1D6] flex items-center justify-center text-[#3D453F] hover:text-red-600 cursor-pointer"
+          className="w-8 h-8 rounded-full bg-white border border-line flex items-center justify-center text-ink-soft hover:text-red-600 cursor-pointer"
           title={t('header.logout')}
         >
           <LogOut className="w-3.5 h-3.5" />

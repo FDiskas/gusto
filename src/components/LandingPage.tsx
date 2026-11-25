@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type React from 'react';
 import {
   Clock,
   Refrigerator,
@@ -17,7 +16,15 @@ import { FOLDER_NAME } from '@/domain/constants';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 /** Landing Page shown before sign-in */
-export const LandingPage: React.FC<{
+export function LandingPage({
+  clientId,
+  setClientId,
+  clientIdFromEnv,
+  onGoogleLogin,
+  onDemoLogin,
+  authLoading,
+  authError,
+}: {
   clientId: string;
   setClientId: (id: string) => void;
   clientIdFromEnv: boolean;
@@ -25,19 +32,19 @@ export const LandingPage: React.FC<{
   onDemoLogin: () => void;
   authLoading: boolean;
   authError: string | null;
-}> = ({ clientId, setClientId, clientIdFromEnv, onGoogleLogin, onDemoLogin, authLoading, authError }) => {
+}) {
   const { t } = useTranslate();
   const [showConfig, setShowConfig] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F8F7F2] text-[#1F2421] flex flex-col">
+    <div className="min-h-screen bg-surface text-ink flex flex-col">
       {/* Top Bar */}
       <header className="w-full max-w-2xl md:max-w-3xl mx-auto px-5 pt-6 pb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-2xl bg-[#3E6B48] flex items-center justify-center text-white shadow-sm">
+          <div className="w-9 h-9 rounded-2xl bg-brand flex items-center justify-center text-white shadow-sm">
             <ChefHat className="w-5 h-5" />
           </div>
-          <span className="text-2xl font-extrabold tracking-tight text-[#2B332D]">{t('app.name')}</span>
+          <span className="text-2xl font-extrabold tracking-tight text-ink">{t('app.name')}</span>
         </div>
         <LanguageSwitcher />
       </header>
@@ -45,17 +52,15 @@ export const LandingPage: React.FC<{
       {/* Main Hero */}
       <main className="flex-1 w-full max-w-2xl md:max-w-3xl mx-auto px-5 pt-4 pb-12 flex flex-col justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E5EFE4] text-[#2D5436] text-xs font-semibold mb-5">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-soft text-brand-ink text-xs font-semibold mb-5">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{t('landing.badge')}</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-[1.15] text-[#1C211E] mb-4">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-[1.15] text-ink mb-4">
             {t('landing.title')}
           </h1>
-          <p className="text-base text-[#5C655E] leading-relaxed mb-7">
-            {t('landing.subtitle')}
-          </p>
+          <p className="text-base text-muted leading-relaxed mb-7">{t('landing.subtitle')}</p>
 
           {/* Hero Visual Card */}
           <div className="relative rounded-3xl overflow-hidden shadow-md mb-7 h-52 sm:h-64 md:h-72 group">
@@ -65,8 +70,8 @@ export const LandingPage: React.FC<{
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-            <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-xs font-semibold text-[#1F2421]">
-              <FileText className="w-3.5 h-3.5 text-[#3E6B48]" />
+            <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-xs font-semibold text-ink">
+              <FileText className="w-3.5 h-3.5 text-brand" />
               <span>{t('landing.preview.file')}</span>
             </div>
             <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between text-white">
@@ -74,14 +79,14 @@ export const LandingPage: React.FC<{
                 <p className="text-xs text-white/80 font-medium mb-0.5">{FOLDER_NAME}</p>
                 <p className="text-xl font-bold leading-tight">{t('landing.preview.title')}</p>
               </div>
-              <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#3E6B48] text-xs font-semibold shadow-sm">
+              <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-brand text-xs font-semibold shadow-sm">
                 <Clock className="w-3.5 h-3.5" /> {t('recipe.time', { min: 20 })}
               </span>
             </div>
           </div>
 
           {/* Auth Actions */}
-          <div className="bg-white rounded-3xl p-5 border border-[#E7E4DA] shadow-sm mb-8">
+          <div className="bg-white rounded-3xl p-5 border border-line shadow-sm mb-8">
             {authError && (
               <div className="mb-4 p-3 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -93,7 +98,7 @@ export const LandingPage: React.FC<{
               <button
                 onClick={onGoogleLogin}
                 disabled={authLoading}
-                className="flex-1 flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-2xl bg-[#3E6B48] hover:bg-[#32583B] active:scale-[0.99] text-white font-semibold text-sm shadow-sm transition-all cursor-pointer disabled:opacity-60"
+                className="flex-1 flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-2xl bg-brand hover:bg-brand-hover active:scale-[0.99] text-white font-semibold text-sm shadow-sm transition-all cursor-pointer disabled:opacity-60"
               >
                 {authLoading ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />
@@ -110,7 +115,7 @@ export const LandingPage: React.FC<{
 
               <button
                 onClick={onDemoLogin}
-                className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-[#EBF1EA] hover:bg-[#DCE7DA] active:scale-[0.99] text-[#26422D] font-semibold text-sm transition-all cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-brand-soft hover:bg-brand-soft-hover active:scale-[0.99] text-brand-ink font-semibold text-sm transition-all cursor-pointer"
               >
                 <span>{t('landing.cta.demo')}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -119,59 +124,59 @@ export const LandingPage: React.FC<{
 
             {/* Client ID collapsible setup */}
             {!clientIdFromEnv && (
-            <div className="mt-4 pt-3 border-t border-[#F0EDE4]">
-              <button
-                type="button"
-                onClick={() => setShowConfig(!showConfig)}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-[#667068] hover:text-[#2E3831] cursor-pointer"
-              >
-                <Settings className="w-3.5 h-3.5" />
-                <span>{t('landing.clientId.label')}</span>
-              </button>
-              {showConfig && (
-                <div className="mt-2.5 space-y-1.5">
-                  <input
-                    type="text"
-                    value={clientId}
-                    onChange={(e) => setClientId(e.target.value)}
-                    placeholder={t('landing.clientId.placeholder')}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8F7F2] border border-[#DFDCD1] text-xs font-mono text-[#1F2421] focus:outline-none focus:ring-2 focus:ring-[#3E6B48]"
-                  />
-                  <p className="text-[11px] text-[#747D76]">{t('landing.clientId.help')}</p>
-                </div>
-              )}
-            </div>
+              <div className="mt-4 pt-3 border-t border-surface-muted">
+                <button
+                  type="button"
+                  onClick={() => setShowConfig(!showConfig)}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-ink cursor-pointer"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>{t('landing.clientId.label')}</span>
+                </button>
+                {showConfig && (
+                  <div className="mt-2.5 space-y-1.5">
+                    <input
+                      type="text"
+                      value={clientId}
+                      onChange={(e) => setClientId(e.target.value)}
+                      placeholder={t('landing.clientId.placeholder')}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line-strong text-xs font-mono text-ink focus:outline-none focus:ring-2 focus:ring-brand"
+                    />
+                    <p className="text-[11px] text-muted">{t('landing.clientId.help')}</p>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
           {/* 3 Feature Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            <div className="bg-white rounded-2xl p-4 border border-[#E7E4DA]">
-              <div className="w-9 h-9 rounded-xl bg-[#EBF1EA] text-[#3E6B48] flex items-center justify-center mb-3">
+            <div className="bg-white rounded-2xl p-4 border border-line">
+              <div className="w-9 h-9 rounded-xl bg-brand-soft text-brand flex items-center justify-center mb-3">
                 <FileText className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-sm text-[#1F2421] mb-1">{t('landing.feature1.title')}</h3>
-              <p className="text-xs text-[#636B65] leading-relaxed">{t('landing.feature1.desc')}</p>
+              <h3 className="font-bold text-sm text-ink mb-1">{t('landing.feature1.title')}</h3>
+              <p className="text-xs text-muted leading-relaxed">{t('landing.feature1.desc')}</p>
             </div>
 
-            <div className="bg-white rounded-2xl p-4 border border-[#E7E4DA]">
-              <div className="w-9 h-9 rounded-xl bg-[#EDE3D2] text-[#6B4E23] flex items-center justify-center mb-3">
+            <div className="bg-white rounded-2xl p-4 border border-line">
+              <div className="w-9 h-9 rounded-xl bg-tag-quick text-tag-quick-ink flex items-center justify-center mb-3">
                 <Users className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-sm text-[#1F2421] mb-1">{t('landing.feature2.title')}</h3>
-              <p className="text-xs text-[#636B65] leading-relaxed">{t('landing.feature2.desc')}</p>
+              <h3 className="font-bold text-sm text-ink mb-1">{t('landing.feature2.title')}</h3>
+              <p className="text-xs text-muted leading-relaxed">{t('landing.feature2.desc')}</p>
             </div>
 
-            <div className="bg-white rounded-2xl p-4 border border-[#E7E4DA]">
-              <div className="w-9 h-9 rounded-xl bg-[#E6DFEE] text-[#553D6E] flex items-center justify-center mb-3">
+            <div className="bg-white rounded-2xl p-4 border border-line">
+              <div className="w-9 h-9 rounded-xl bg-tag-dessert text-tag-dessert-ink flex items-center justify-center mb-3">
                 <Refrigerator className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-sm text-[#1F2421] mb-1">{t('landing.feature3.title')}</h3>
-              <p className="text-xs text-[#636B65] leading-relaxed">{t('landing.feature3.desc')}</p>
+              <h3 className="font-bold text-sm text-ink mb-1">{t('landing.feature3.title')}</h3>
+              <p className="text-xs text-muted leading-relaxed">{t('landing.feature3.desc')}</p>
             </div>
           </div>
         </div>
       </main>
     </div>
   );
-};
+}

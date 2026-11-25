@@ -28,7 +28,9 @@ function mockGoogle(failures: Record<string, { status: number; body: unknown }>)
     const url = String(input);
     const method = init?.method ?? 'GET';
     calls.push({ method, url });
-    const failure = Object.entries(failures).find(([key]) => key === `${method} ${url.split('?')[0]!.split('/').slice(-1)[0]}`);
+    const failure = Object.entries(failures).find(
+      ([key]) => key === `${method} ${url.split('?')[0]!.split('/').slice(-1)[0]}`
+    );
     if (failure) return new Response(JSON.stringify(failure[1].body), { status: failure[1].status });
     if (url.includes('/files?q=')) return Response.json({ files: [{ id: 'folder-1' }] });
     if (url.includes('/documents/') && method === 'GET') return Response.json({ body: { content: [] } });
@@ -71,6 +73,25 @@ describe('createRecipe', () => {
     const saved = await service.createRecipe({ ...draft, photo: new Blob(['x'], { type: 'image/jpeg' }) });
 
     expect([saved.id, reasons]).toEqual(['doc-1', ['Google API (403): Sharing is blocked']]);
+  });
+});
+
+describe('listRecipes', () => {
+  test('fills defaults for a document without metadata', async () => {
+    const [recipe] = await new GoogleDriveDocsService('token').listRecipes();
+    expect(recipe).toMatchObject({
+      id: 'folder-1',
+      prepTime: 25,
+      tags: ['dinner'],
+      saved: false,
+      docUrl: 'https://docs.google.com/document/d/folder-1/edit',
+    });
+  });
+
+  test('still lists a recipe whose document cannot be read, without ingredients and steps', async () => {
+    mockGoogle({ 'GET folder-1': { status: 403, body: { error: { message: 'Restricted' } } } });
+    const [recipe] = await new GoogleDriveDocsService('token').listRecipes();
+    expect([recipe?.ingredients, recipe?.steps]).toEqual([[], []]);
   });
 });
 

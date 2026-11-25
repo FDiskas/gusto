@@ -1,10 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type React from 'react';
-import {
-  X,
-  AlertCircle,
-  ImagePlus,
-} from 'lucide-react';
+import { X, AlertCircle, ImagePlus } from 'lucide-react';
 import { useTranslate } from '@/i18n';
 import { TAG_CONFIG, CURATED_IMAGES } from '@/domain/constants';
 import { describeError } from '@/lib/error';
@@ -12,11 +8,15 @@ import { resizePhoto } from '@/lib/image';
 import type { TagId, Recipe, RecipeDraft } from '@/domain/types';
 
 /** Create / Edit Recipe Modal */
-export const RecipeEditorModal: React.FC<{
+export function RecipeEditorModal({
+  initial,
+  onClose,
+  onSave,
+}: {
   initial?: Recipe | null;
   onClose: () => void;
   onSave: (data: RecipeDraft, existingId?: string) => Promise<void>;
-}> = ({ initial, onClose, onSave }) => {
+}) {
   const { t } = useTranslate();
   const [title, setTitle] = useState(initial?.title || '');
   const [prepTime, setPrepTime] = useState(String(initial?.prepTime || 20));
@@ -101,16 +101,16 @@ export const RecipeEditorModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-xs flex items-end sm:items-center justify-center">
-      <div className="w-full max-w-md md:max-w-xl max-h-[92dvh] bg-[#F8F7F2] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col shadow-xl">
+      <div className="w-full max-w-md md:max-w-xl max-h-[92dvh] bg-surface rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col shadow-xl">
         {/* Header */}
-        <div className="px-5 py-4 bg-white border-b border-[#E7E4DA] flex items-center justify-between">
-          <h2 className="font-extrabold text-base text-[#1F2421]">
+        <div className="px-5 py-4 bg-white border-b border-line flex items-center justify-between">
+          <h2 className="font-extrabold text-base text-ink">
             {initial ? t('editor.editTitle') : t('editor.newTitle')}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#F2F0E8] flex items-center justify-center text-[#3D453F] cursor-pointer"
+            className="w-8 h-8 rounded-full bg-surface-muted flex items-center justify-center text-ink-soft cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -119,67 +119,55 @@ export const RecipeEditorModal: React.FC<{
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
           <div>
-            <label className="block text-xs font-bold text-[#3D453F] mb-1.5">
-              {t('editor.field.title')}
-            </label>
+            <label className="block text-xs font-bold text-ink-soft mb-1.5">{t('editor.field.title')}</label>
             <input
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t('editor.field.titlePlaceholder')}
-              className="w-full px-4 py-3 rounded-2xl bg-white border border-[#DFDCD1] text-sm focus:outline-none focus:ring-2 focus:ring-[#3E6B48]"
+              className="w-full px-4 py-3 rounded-2xl bg-white border border-line-strong text-sm focus:outline-none focus:ring-2 focus:ring-brand"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-[#3D453F] mb-1.5">
-                {t('editor.field.time')}
-              </label>
+              <label className="block text-xs font-bold text-ink-soft mb-1.5">{t('editor.field.time')}</label>
               <input
                 type="number"
                 min={1}
                 max={600}
                 value={prepTime}
                 onChange={(e) => setPrepTime(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-white border border-[#DFDCD1] text-sm focus:outline-none focus:ring-2 focus:ring-[#3E6B48]"
+                className="w-full px-4 py-2.5 rounded-2xl bg-white border border-line-strong text-sm focus:outline-none focus:ring-2 focus:ring-brand"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#3D453F] mb-1.5">
-                {t('editor.field.image')}
-              </label>
+              <label className="block text-xs font-bold text-ink-soft mb-1.5">{t('editor.field.image')}</label>
               <input
                 type="url"
                 value={/^(blob|data):/.test(imageUrl) ? '' : imageUrl}
                 onChange={(e) => chooseImageUrl(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-[#DFDCD1] text-xs focus:outline-none focus:ring-2 focus:ring-[#3E6B48]"
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-line-strong text-xs focus:outline-none focus:ring-2 focus:ring-brand"
               />
             </div>
           </div>
 
           {/* Photo upload: shown full width on top of the Google Doc */}
           <div className="space-y-2">
-            <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-[#EDE9DD] border border-[#DFDCD1]">
+            <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-surface-sunken border border-line-strong">
               <img src={photoPreview ?? imageUrl} alt="" className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => photoInputRef.current?.click()}
-                className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/95 backdrop-blur-md text-[#1F2421] text-xs font-bold shadow-sm cursor-pointer"
+                className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/95 backdrop-blur-md text-ink text-xs font-bold shadow-sm cursor-pointer"
               >
-                <ImagePlus className="w-4 h-4 text-[#3E6B48]" />
+                <ImagePlus className="w-4 h-4 text-brand" />
                 <span>{photoPreview ? t('editor.photo.replace') : t('editor.photo.upload')}</span>
               </button>
             </div>
-            <input
-              ref={photoInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoChange}
-              className="hidden"
-            />
-            <p className="text-[11px] text-[#747D76]">{t('editor.photo.hint')}</p>
+            <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+            <p className="text-[11px] text-muted">{t('editor.photo.hint')}</p>
           </div>
 
           {/* Quick image presets */}
@@ -190,7 +178,7 @@ export const RecipeEditorModal: React.FC<{
                 type="button"
                 onClick={() => chooseImageUrl(img)}
                 className={`w-12 h-12 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
-                  !photoPreview && imageUrl === img ? 'border-[#3E6B48] scale-105' : 'border-transparent opacity-75'
+                  !photoPreview && imageUrl === img ? 'border-brand scale-105' : 'border-transparent opacity-75'
                 }`}
               >
                 <img src={img} alt={t('editor.preset.alt')} className="w-full h-full object-cover" />
@@ -200,9 +188,7 @@ export const RecipeEditorModal: React.FC<{
 
           {/* Tags */}
           <div>
-            <label className="block text-xs font-bold text-[#3D453F] mb-1.5">
-              {t('editor.field.tags')}
-            </label>
+            <label className="block text-xs font-bold text-ink-soft mb-1.5">{t('editor.field.tags')}</label>
             <div className="flex flex-wrap gap-2">
               {TAG_CONFIG.map((tag) => {
                 const active = tags.includes(tag.id);
@@ -212,7 +198,7 @@ export const RecipeEditorModal: React.FC<{
                     type="button"
                     onClick={() => toggleTag(tag.id)}
                     className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                      active ? 'bg-[#3E6B48] text-white' : `${tag.bg} ${tag.text}`
+                      active ? 'bg-brand text-white' : `${tag.bg} ${tag.text}`
                     }`}
                   >
                     {tag.emoji} {t(tag.labelKey)}
@@ -224,29 +210,25 @@ export const RecipeEditorModal: React.FC<{
 
           {/* Ingredients */}
           <div>
-            <label className="block text-xs font-bold text-[#3D453F] mb-1.5">
-              {t('editor.field.ingredients')}
-            </label>
+            <label className="block text-xs font-bold text-ink-soft mb-1.5">{t('editor.field.ingredients')}</label>
             <textarea
               rows={4}
               value={ingredientsText}
               onChange={(e) => setIngredientsText(e.target.value)}
               placeholder={'2 lašišos filė\n250 g smidrų\n1 citrina'}
-              className="w-full px-4 py-3 rounded-2xl bg-white border border-[#DFDCD1] text-sm focus:outline-none focus:ring-2 focus:ring-[#3E6B48]"
+              className="w-full px-4 py-3 rounded-2xl bg-white border border-line-strong text-sm focus:outline-none focus:ring-2 focus:ring-brand"
             />
           </div>
 
           {/* Steps */}
           <div>
-            <label className="block text-xs font-bold text-[#3D453F] mb-1.5">
-              {t('editor.field.steps')}
-            </label>
+            <label className="block text-xs font-bold text-ink-soft mb-1.5">{t('editor.field.steps')}</label>
             <textarea
               rows={4}
               value={stepsText}
               onChange={(e) => setStepsText(e.target.value)}
               placeholder={'Įkaitinkite orkaitę iki 200 °C.\nKepkite 15 minučių.'}
-              className="w-full px-4 py-3 rounded-2xl bg-white border border-[#DFDCD1] text-sm focus:outline-none focus:ring-2 focus:ring-[#3E6B48]"
+              className="w-full px-4 py-3 rounded-2xl bg-white border border-line-strong text-sm focus:outline-none focus:ring-2 focus:ring-brand"
             />
           </div>
 
@@ -263,7 +245,7 @@ export const RecipeEditorModal: React.FC<{
           <button
             type="submit"
             disabled={saving}
-            className="w-full py-3.5 rounded-2xl bg-[#3E6B48] hover:bg-[#32583B] text-white font-bold text-sm shadow-sm transition-colors cursor-pointer disabled:opacity-60"
+            className="w-full py-3.5 rounded-2xl bg-brand hover:bg-brand-hover text-white font-bold text-sm shadow-sm transition-colors cursor-pointer disabled:opacity-60"
           >
             {saving ? t('editor.saving') : t('editor.save')}
           </button>
@@ -271,4 +253,4 @@ export const RecipeEditorModal: React.FC<{
       </div>
     </div>
   );
-};
+}

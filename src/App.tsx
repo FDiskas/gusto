@@ -114,8 +114,8 @@ function AppContent() {
 
   return (
     <>
-      <div className="min-h-dvh bg-[#EFECE3] sm:py-6 flex justify-center">
-        <div className="w-full max-w-md md:max-w-3xl h-dvh sm:h-[calc(100dvh-3rem)] sm:max-h-[900px] bg-[#F8F7F2] sm:rounded-[38px] sm:shadow-2xl sm:border sm:border-[#E2DFD3] flex flex-col relative overflow-hidden">
+      <div className="min-h-dvh bg-canvas sm:py-6 flex justify-center">
+        <div className="w-full max-w-md md:max-w-3xl h-dvh sm:h-[calc(100dvh-3rem)] sm:max-h-[900px] bg-surface sm:rounded-[38px] sm:shadow-2xl sm:border sm:border-line flex flex-col relative overflow-hidden">
           <StatusBanner isDemo={user.isDemo} syncing={library.syncing} />
 
           <AppHeader
@@ -146,7 +146,7 @@ function AppContent() {
 
           <button
             onClick={() => setEditingRecipe(null)}
-            className="absolute right-5 md:right-8 bottom-24 z-20 w-13 h-13 rounded-full bg-[#3E6B48] hover:bg-[#32583B] active:scale-95 text-white shadow-lg flex items-center justify-center transition-all cursor-pointer"
+            className="absolute right-5 md:right-8 bottom-24 z-20 w-13 h-13 rounded-full bg-brand hover:bg-brand-hover active:scale-95 text-white shadow-lg flex items-center justify-center transition-all cursor-pointer"
             aria-label={t('editor.newTitle')}
           >
             <Plus className="w-6 h-6" />

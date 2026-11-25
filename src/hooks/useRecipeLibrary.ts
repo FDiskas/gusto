@@ -3,6 +3,7 @@ import { DEFAULT_COLLAB_KEY, DEFAULT_STORAGE_KEY, DEMO_DOC_URL, DEMO_USER } from
 import { INITIAL_DEMO_COLLABS, INITIAL_DEMO_RECIPES } from '@/domain/demo-data';
 import type { Collaborator, Recipe, RecipeDraft } from '@/domain/types';
 import { useTranslate } from '@/i18n';
+import { nameFromEmail } from '@/lib/email';
 import { describeError } from '@/lib/error';
 import { blobToDataUrl } from '@/lib/image';
 import { GoogleDriveDocsService } from '@/services/google-drive';
@@ -160,7 +161,7 @@ export function useRecipeLibrary({
   const inviteCollaborator = async (email: string, role: 'writer' | 'reader') => {
     const added: Collaborator = driveService
       ? await driveService.addCollaborator(email, role)
-      : { id: `c-${Date.now()}`, email, displayName: email.split('@')[0] ?? email, role };
+      : { id: `c-${Date.now()}`, email, displayName: nameFromEmail(email), role };
     commitCollaborators([...collaborators, added]);
     notify(t('toast.invited', { email }));
   };
@@ -175,7 +176,6 @@ export function useRecipeLibrary({
     recipes,
     collaborators,
     syncing,
-    isGoogleConnected: driveService !== null,
     folderId: driveService?.folderId ?? null,
     connectGoogle,
     startDemo,

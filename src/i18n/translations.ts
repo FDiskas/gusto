@@ -25,9 +25,11 @@ export const translations = {
     'landing.clientId.placeholder': 'xxxx-xxxx.apps.googleusercontent.com',
     'landing.clientId.help': 'Norint jungtis prie tikro Google Drive, įveskite savo Google Cloud Web Client ID.',
     'landing.feature1.title': 'Atskiri Google Docs failai',
-    'landing.feature1.desc': 'Visi duomenys priklauso jums. Redaguokite receptus programėlėje arba tiesiogiai Google Docs.',
+    'landing.feature1.desc':
+      'Visi duomenys priklauso jums. Redaguokite receptus programėlėje arba tiesiogiai Google Docs.',
     'landing.feature2.title': 'Bendras šeimos aplankas',
-    'landing.feature2.desc': 'Pakvieskite šeimos narius el. paštu – visi matys ir galės pildyti tą pačią receptų kolekciją.',
+    'landing.feature2.desc':
+      'Pakvieskite šeimos narius el. paštu – visi matys ir galės pildyti tą pačią receptų kolekciją.',
     'landing.feature3.title': 'Iš to, ką turi šaldytuve',
     'landing.feature3.desc': 'Sužymėkite turimus produktus ir akimirksniu raskite, ką galite pagaminti dabar.',
     'landing.preview.alt': 'Gusto šeimos receptų peržiūra',
@@ -150,7 +152,8 @@ export const translations = {
     'landing.feature1.title': 'Separate Google Docs',
     'landing.feature1.desc': 'You own your data. Edit recipes inside Gusto or open them directly in Google Docs.',
     'landing.feature2.title': 'Shared Family Folder',
-    'landing.feature2.desc': 'Invite family members by email so everyone can view and contribute to the same collection.',
+    'landing.feature2.desc':
+      'Invite family members by email so everyone can view and contribute to the same collection.',
     'landing.feature3.title': 'Cook From Your Fridge',
     'landing.feature3.desc': 'Add ingredients you already have and instantly see which family recipes match best.',
     'landing.preview.alt': 'Gusto family recipe preview',

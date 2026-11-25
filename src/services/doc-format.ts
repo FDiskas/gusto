@@ -240,7 +240,7 @@ export function buildPhotoInsertRequest(photo: DocPhoto): DocRequest {
   };
 }
 
-interface GoogleDocJson {
+export interface GoogleDocJson {
   body?: {
     content?: { paragraph?: { elements?: { textRun?: { content?: string } }[] } }[];
   };

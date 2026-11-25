@@ -1,25 +1,26 @@
 import type React from 'react';
-import {
-  Clock,
-  Heart,
-  FileText,
-} from 'lucide-react';
+import { Clock, Heart, FileText } from 'lucide-react';
 import { useTranslate } from '@/i18n';
 import type { Recipe } from '@/domain/types';
 
 /** Recipe Card matching the minimalist Gusto visual design */
-export const RecipeCard: React.FC<{
+export function RecipeCard({
+  recipe,
+  onOpen,
+  onToggleSave,
+  badgeText,
+}: {
   recipe: Recipe;
   onOpen: (recipe: Recipe) => void;
   onToggleSave: (recipe: Recipe, e: React.MouseEvent) => void;
   badgeText?: string;
-}> = ({ recipe, onOpen, onToggleSave, badgeText }) => {
+}) {
   const { t } = useTranslate();
 
   return (
     <div
       onClick={() => onOpen(recipe)}
-      className="relative rounded-[26px] overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer group h-56 bg-[#242B26]"
+      className="relative rounded-[26px] overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer group h-56 bg-ink-deep"
     >
       <img
         src={recipe.imageUrl}
@@ -32,7 +33,7 @@ export const RecipeCard: React.FC<{
       <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           {badgeText ? (
-            <span className="px-2.5 py-1 rounded-full bg-[#3E6B48] text-white text-xs font-bold shadow-sm">
+            <span className="px-2.5 py-1 rounded-full bg-brand text-white text-xs font-bold shadow-sm">
               {badgeText}
             </span>
           ) : (
@@ -49,7 +50,7 @@ export const RecipeCard: React.FC<{
           className="w-9 h-9 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/45 transition-colors cursor-pointer"
           aria-label={t('recipe.save')}
         >
-          <Heart className={`w-4.5 h-4.5 ${recipe.saved ? 'fill-[#FF6B6B] text-[#FF6B6B]' : 'text-white'}`} />
+          <Heart className={`w-4.5 h-4.5 ${recipe.saved ? 'fill-heart text-heart' : 'text-white'}`} />
         </button>
       </div>
 
@@ -73,11 +74,11 @@ export const RecipeCard: React.FC<{
           </div>
         </div>
 
-        <span className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#3E6B48] group-hover:bg-[#32583B] text-white text-xs font-bold shadow-sm transition-colors">
+        <span className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-brand group-hover:bg-brand-hover text-white text-xs font-bold shadow-sm transition-colors">
           <span>👉</span>
           <span>{t('home.cookBtn')}</span>
         </span>
       </div>
     </div>
   );
-};
+}

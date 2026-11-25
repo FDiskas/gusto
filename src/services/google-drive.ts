@@ -5,7 +5,9 @@ import {
   buildRecipeDocRequestsWithPhotoSlot,
   parseGoogleDocBody,
   type DocRequest,
+  type GoogleDocJson,
 } from '@/services/doc-format';
+import { nameFromEmail } from '@/lib/email';
 import { describeError } from '@/lib/error';
 import type { TagId, Recipe, RecipeInput, RecipeDraft, Collaborator } from '@/domain/types';
 
@@ -27,6 +29,45 @@ const DRIVE_UPLOAD_API = 'https://www.googleapis.com/upload/drive/v3';
 /** Default Google Docs text width (US Letter 612pt minus 2 x 72pt margins) */
 const FALLBACK_DOC_TEXT_WIDTH_PT = 468;
 
+const DEFAULT_PREP_TIME_MINUTES = 25;
+const DEFAULT_TAG: TagId = 'dinner';
+
+interface DriveFile {
+  id: string;
+  name?: string;
+  modifiedTime?: string;
+  webViewLink?: string;
+  appProperties?: Record<string, string>;
+  owners?: { displayName?: string }[];
+}
+
+interface DrivePermission {
+  id: string;
+  type?: string;
+  role?: string;
+  emailAddress?: string;
+  displayName?: string;
+}
+
+interface DocLayoutJson {
+  documentStyle?: {
+    pageSize?: { width?: { magnitude?: number } };
+    marginLeft?: { magnitude?: number };
+    marginRight?: { magnitude?: number };
+  };
+}
+
+interface DocBodyEndJson {
+  body?: { content?: { endIndex?: number }[] };
+}
+
+const fallbackDocUrl = (docId: string) => `https://docs.google.com/document/d/${docId}/edit`;
+
+function toCollaboratorRole(role: string | undefined): Collaborator['role'] {
+  if (role === 'owner' || role === 'writer') return role;
+  return 'reader';
+}
+
 /** Google wraps errors as `{ error: { message } }`; anything else is shown as it came */
 function readApiErrorMessage(body: string): string {
   try {
@@ -46,7 +87,8 @@ export class GoogleDriveDocsService {
     this.token = accessToken;
   }
 
-  private async request(url: string, options: RequestInit = {}) {
+  /** Calls the Google API and parses the JSON answer. Empty answers (HTTP 204) must be requested as `void`. */
+  private async request<T>(url: string, options: RequestInit = {}): Promise<T> {
     const res = await fetch(url, {
       ...options,
       headers: {
@@ -56,8 +98,8 @@ export class GoogleDriveDocsService {
       },
     });
     if (!res.ok) throw new Error(`Google API (${res.status}): ${readApiErrorMessage(await res.text())}`);
-    if (res.status === 204) return null;
-    return res.json();
+    if (res.status === 204) return undefined as T;
+    return res.json() as Promise<T>;
   }
 
   /** Finds an existing `Gusto Family Recipes` folder (owned or shared with user) or creates it */
@@ -67,14 +109,17 @@ export class GoogleDriveDocsService {
     const query = encodeURIComponent(
       `mimeType='application/vnd.google-apps.folder' and name='${FOLDER_NAME}' and trashed=false`
     );
-    const data = await this.request(`${DRIVE_API}/files?q=${query}&fields=files(id,name,shared)`);
+    const data = await this.request<{ files?: DriveFile[] }>(
+      `${DRIVE_API}/files?q=${query}&fields=files(id,name,shared)`
+    );
 
-    if (data.files && data.files.length > 0) {
-      this.folderId = data.files[0].id;
-      return this.folderId!;
+    const [existingFolder] = data.files ?? [];
+    if (existingFolder) {
+      this.folderId = existingFolder.id;
+      return existingFolder.id;
     }
 
-    const created = await this.request(`${DRIVE_API}/files`, {
+    const created = await this.request<DriveFile>(`${DRIVE_API}/files`, {
       method: 'POST',
       body: JSON.stringify({
         name: FOLDER_NAME,
@@ -82,7 +127,7 @@ export class GoogleDriveDocsService {
       }),
     });
     this.folderId = created.id;
-    return this.folderId!;
+    return created.id;
   }
 
   /** Uploads a photo into the family folder and returns its Drive file ID */
@@ -96,7 +141,7 @@ export class GoogleDriveDocsService {
       photo,
       `\r\n--${boundary}--`,
     ]);
-    const file = await this.request(`${DRIVE_UPLOAD_API}/files?uploadType=multipart&fields=id`, {
+    const file = await this.request<DriveFile>(`${DRIVE_UPLOAD_API}/files?uploadType=multipart&fields=id`, {
       method: 'POST',
       headers: { 'Content-Type': `multipart/related; boundary=${boundary}` },
       body,
@@ -115,7 +160,7 @@ export class GoogleDriveDocsService {
 
   /** Width of the printable area of the document, so the photo spans the full text width */
   private async getDocTextWidthPt(docId: string): Promise<number> {
-    const doc = await this.request(`${DOCS_API}/documents/${docId}?fields=documentStyle`);
+    const doc = await this.request<DocLayoutJson>(`${DOCS_API}/documents/${docId}?fields=documentStyle`);
     const style = doc?.documentStyle;
     const pageWidth = style?.pageSize?.width?.magnitude;
     if (!pageWidth) return FALLBACK_DOC_TEXT_WIDTH_PT;
@@ -130,21 +175,21 @@ export class GoogleDriveDocsService {
    * Google copies the image into the document, so it keeps showing after revoking.
    */
   private async withTemporaryPublicLink<T>(fileId: string, action: (url: string) => Promise<T>): Promise<T> {
-    const permission = await this.request(`${DRIVE_API}/files/${fileId}/permissions?fields=id`, {
+    const permission = await this.request<DrivePermission>(`${DRIVE_API}/files/${fileId}/permissions?fields=id`, {
       method: 'POST',
       body: JSON.stringify({ type: 'anyone', role: 'reader' }),
     });
     try {
       return await action(`https://drive.google.com/uc?export=view&id=${fileId}`);
     } finally {
-      await this.request(`${DRIVE_API}/files/${fileId}/permissions/${permission.id}`, {
+      await this.request<void>(`${DRIVE_API}/files/${fileId}/permissions/${permission.id}`, {
         method: 'DELETE',
       }).catch(() => undefined);
     }
   }
 
   private batchUpdate(docId: string, requests: DocRequest[]) {
-    return this.request(`${DOCS_API}/documents/${docId}:batchUpdate`, {
+    return this.request<unknown>(`${DOCS_API}/documents/${docId}:batchUpdate`, {
       method: 'POST',
       body: JSON.stringify({ requests }),
     });
@@ -152,8 +197,8 @@ export class GoogleDriveDocsService {
 
   /** Request that empties the document, so a rewritten recipe does not pile up on the old text */
   private async buildClearRequests(docId: string): Promise<DocRequest[]> {
-    const currentDoc = await this.request(`${DOCS_API}/documents/${docId}`);
-    const content = currentDoc?.body?.content || [];
+    const currentDoc = await this.request<DocBodyEndJson>(`${DOCS_API}/documents/${docId}`);
+    const content = currentDoc?.body?.content ?? [];
     const endIndex = content[content.length - 1]?.endIndex || 1;
     if (endIndex <= 2) return [];
     return [{ deleteContentRange: { range: { startIndex: 1, endIndex: endIndex - 1 } } }];
@@ -179,9 +224,7 @@ export class GoogleDriveDocsService {
     clearFirst: boolean
   ): Promise<void> {
     const clearRequests = clearFirst ? await this.buildClearRequests(docId) : [];
-    const bodyRequests = photoFileId
-      ? buildRecipeDocRequestsWithPhotoSlot(recipe)
-      : buildRecipeDocRequests(recipe);
+    const bodyRequests = photoFileId ? buildRecipeDocRequestsWithPhotoSlot(recipe) : buildRecipeDocRequests(recipe);
     await this.batchUpdate(docId, [...clearRequests, ...bodyRequests]);
     if (photoFileId) await this.insertPhotoIntoDoc(docId, photoFileId);
   }
@@ -192,57 +235,56 @@ export class GoogleDriveDocsService {
     const query = encodeURIComponent(
       `'${folderId}' in parents and mimeType='application/vnd.google-apps.document' and trashed=false`
     );
-    const fields = encodeURIComponent(
-      'files(id,name,modifiedTime,webViewLink,appProperties,owners(displayName))'
-    );
-    const data = await this.request(
+    const fields = encodeURIComponent('files(id,name,modifiedTime,webViewLink,appProperties,owners(displayName))');
+    const data = await this.request<{ files?: DriveFile[] }>(
       `${DRIVE_API}/files?q=${query}&fields=${fields}&orderBy=modifiedTime desc`
     );
 
-    const files = data.files || [];
-    const recipes: Recipe[] = await Promise.all(
-      files.map(async (f: any) => {
-        let ingredients: string[] = [];
-        let steps: string[] = [];
-        try {
-          const doc = await this.request(`${DOCS_API}/documents/${f.id}`);
-          const parsed = parseGoogleDocBody(doc);
-          ingredients = parsed.ingredients;
-          steps = parsed.steps;
-        } catch {
-          // Fallback if doc is still empty or restricted
-        }
+    return Promise.all((data.files ?? []).map((file) => this.hydrateRecipe(file)));
+  }
 
-        const props = f.appProperties || {};
-        const parsedTags = (props.tags ? props.tags.split(',') : ['dinner']).filter(Boolean) as TagId[];
-        const imageFileId: string | undefined = props.imageFileId || undefined;
-        let imageUrl: string = props.imageUrl || CURATED_IMAGES[0]!;
-        if (imageFileId) {
-          try {
-            imageUrl = await this.loadPhotoUrl(imageFileId);
-          } catch {
-            // Photo deleted or not shared: keep the fallback image
-          }
-        }
+  private async hydrateRecipe(file: DriveFile): Promise<Recipe> {
+    const props = file.appProperties ?? {};
+    const imageFileId = props.imageFileId || undefined;
+    const [{ ingredients, steps }, imageUrl] = await Promise.all([
+      this.readDocContent(file.id),
+      this.resolveImageUrl(imageFileId, props.imageUrl),
+    ]);
 
-        return {
-          id: f.id,
-          title: f.name,
-          prepTime: Number(props.prepTime) || 25,
-          tags: parsedTags,
-          imageUrl,
-          imageFileId,
-          ingredients,
-          steps,
-          saved: props.saved === 'true',
-          docUrl: f.webViewLink || `https://docs.google.com/document/d/${f.id}/edit`,
-          updatedAt: f.modifiedTime || new Date().toISOString(),
-          authorName: f.owners?.[0]?.displayName,
-        };
-      })
-    );
+    return {
+      id: file.id,
+      title: file.name ?? '',
+      prepTime: Number(props.prepTime) || DEFAULT_PREP_TIME_MINUTES,
+      tags: props.tags ? (props.tags.split(',').filter(Boolean) as TagId[]) : [DEFAULT_TAG],
+      imageUrl,
+      imageFileId,
+      ingredients,
+      steps,
+      saved: props.saved === 'true',
+      docUrl: file.webViewLink || fallbackDocUrl(file.id),
+      updatedAt: file.modifiedTime || new Date().toISOString(),
+      authorName: file.owners?.[0]?.displayName,
+    };
+  }
 
-    return recipes;
+  /** An empty or restricted document is shown as a recipe without ingredients and steps */
+  private async readDocContent(docId: string): Promise<{ ingredients: string[]; steps: string[] }> {
+    try {
+      return parseGoogleDocBody(await this.request<GoogleDocJson>(`${DOCS_API}/documents/${docId}`));
+    } catch {
+      return { ingredients: [], steps: [] };
+    }
+  }
+
+  /** A deleted or unshared photo keeps the stored image URL (or the first curated image) */
+  private async resolveImageUrl(imageFileId: string | undefined, storedUrl: string | undefined): Promise<string> {
+    const fallbackUrl = storedUrl || CURATED_IMAGES[0]!;
+    if (!imageFileId) return fallbackUrl;
+    try {
+      return await this.loadPhotoUrl(imageFileId);
+    } catch {
+      return fallbackUrl;
+    }
   }
 
   /**
@@ -272,7 +314,7 @@ export class GoogleDriveDocsService {
     let docId: string | undefined;
 
     try {
-      const file = await this.request(`${DRIVE_API}/files?fields=id,name,webViewLink,modifiedTime`, {
+      const file = await this.request<DriveFile>(`${DRIVE_API}/files?fields=id,name,webViewLink,modifiedTime`, {
         method: 'POST',
         body: JSON.stringify({
           name: input.title,
@@ -289,13 +331,15 @@ export class GoogleDriveDocsService {
         imageUrl: photo ? URL.createObjectURL(photo) : recipeInput.imageUrl,
         imageFileId,
         id: file.id,
-        docUrl: file.webViewLink || `https://docs.google.com/document/d/${file.id}/edit`,
+        docUrl: file.webViewLink || fallbackDocUrl(file.id),
         updatedAt: file.modifiedTime || new Date().toISOString(),
       };
     } catch (error) {
       // Leave nothing half-made behind, otherwise every retry adds another broken doc
       await Promise.all(
-        [docId, imageFileId].filter((id): id is string => Boolean(id)).map((id) => this.trashFile(id).catch(() => undefined))
+        [docId, imageFileId]
+          .filter((id): id is string => Boolean(id))
+          .map((id) => this.trashFile(id).catch(() => undefined))
       );
       throw error;
     }
@@ -305,12 +349,9 @@ export class GoogleDriveDocsService {
   async updateRecipe(recipe: Recipe, photo?: Blob): Promise<Recipe> {
     const imageFileId = photo ? await this.uploadPhoto(photo, recipe.title) : recipe.imageFileId;
 
-    await this.request(`${DRIVE_API}/files/${recipe.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        name: recipe.title,
-        appProperties: this.buildAppProperties(recipe, imageFileId, false),
-      }),
+    await this.patchFile(recipe.id, {
+      name: recipe.title,
+      appProperties: this.buildAppProperties(recipe, imageFileId, false),
     });
 
     await this.writeDocBody(recipe.id, recipe, imageFileId, true);
@@ -326,20 +367,19 @@ export class GoogleDriveDocsService {
   /** Fast toggle for the saved heart state via Drive appProperties */
   async toggleSaved(recipe: Recipe): Promise<Recipe> {
     const nextSaved = !recipe.saved;
-    await this.request(`${DRIVE_API}/files/${recipe.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        appProperties: { saved: String(nextSaved) },
-      }),
-    });
+    await this.patchFile(recipe.id, { appProperties: { saved: String(nextSaved) } });
     return { ...recipe, saved: nextSaved };
   }
 
-  private async trashFile(fileId: string): Promise<void> {
-    await this.request(`${DRIVE_API}/files/${fileId}`, {
+  private async patchFile(fileId: string, changes: Record<string, unknown>): Promise<void> {
+    await this.request<unknown>(`${DRIVE_API}/files/${fileId}`, {
       method: 'PATCH',
-      body: JSON.stringify({ trashed: true }),
+      body: JSON.stringify(changes),
     });
+  }
+
+  private trashFile(fileId: string): Promise<void> {
+    return this.patchFile(fileId, { trashed: true });
   }
 
   /** Moves the Google Doc and its uploaded photo to trash */
@@ -352,21 +392,23 @@ export class GoogleDriveDocsService {
   async listCollaborators(): Promise<Collaborator[]> {
     const folderId = await this.ensureFamilyFolder();
     const fields = encodeURIComponent('permissions(id,emailAddress,displayName,role,type)');
-    const data = await this.request(`${DRIVE_API}/files/${folderId}/permissions?fields=${fields}`);
-    return (data.permissions || [])
-      .filter((p: any) => p.type === 'user')
-      .map((p: any) => ({
-        id: p.id,
-        email: p.emailAddress || '',
-        displayName: p.displayName || p.emailAddress || 'User',
-        role: p.role === 'owner' ? 'owner' : p.role === 'writer' ? 'writer' : 'reader',
+    const data = await this.request<{ permissions?: DrivePermission[] }>(
+      `${DRIVE_API}/files/${folderId}/permissions?fields=${fields}`
+    );
+    return (data.permissions ?? [])
+      .filter((permission) => permission.type === 'user')
+      .map((permission) => ({
+        id: permission.id,
+        email: permission.emailAddress || '',
+        displayName: permission.displayName || permission.emailAddress || 'User',
+        role: toCollaboratorRole(permission.role),
       }));
   }
 
   /** Shares the entire family folder with a collaborator via Google Drive Permissions API */
   async addCollaborator(email: string, role: 'writer' | 'reader'): Promise<Collaborator> {
     const folderId = await this.ensureFamilyFolder();
-    const created = await this.request(
+    const created = await this.request<DrivePermission>(
       `${DRIVE_API}/files/${folderId}/permissions?sendNotificationEmail=true&fields=id,emailAddress,displayName,role`,
       {
         method: 'POST',
@@ -380,7 +422,7 @@ export class GoogleDriveDocsService {
     return {
       id: created.id,
       email: created.emailAddress || email,
-      displayName: created.displayName || email.split('@')[0],
+      displayName: created.displayName || nameFromEmail(email),
       role,
     };
   }
@@ -388,7 +430,7 @@ export class GoogleDriveDocsService {
   /** Removes a collaborator from the shared family folder */
   async removeCollaborator(permissionId: string): Promise<void> {
     const folderId = await this.ensureFamilyFolder();
-    await this.request(`${DRIVE_API}/files/${folderId}/permissions/${permissionId}`, {
+    await this.request<void>(`${DRIVE_API}/files/${folderId}/permissions/${permissionId}`, {
       method: 'DELETE',
     });
   }

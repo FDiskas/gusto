@@ -108,7 +108,7 @@ export const INITIAL_DEMO_RECIPES: Recipe[] = [
 ];
 
 export const INITIAL_DEMO_COLLABS: Collaborator[] = [
-  { id: 'c1', email: 'tomas.seima@gmail.com', displayName: 'Tomas (Tu)', role: 'owner' },
-  { id: 'c2', email: 'ieva.seima@gmail.com', displayName: 'Ieva', role: 'writer' },
+  { id: 'c1', email: 'tomas@example.com', displayName: 'Tomas (Tu)', role: 'owner' },
+  { id: 'c2', email: 'ieva@example.com', displayName: 'Ieva', role: 'writer' },
   { id: 'c3', email: 'mama@gmail.com', displayName: 'Mama', role: 'writer' },
 ];

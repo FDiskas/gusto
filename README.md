@@ -19,13 +19,15 @@ cp .env.example .env   # optional: add your Google Client ID
 bun dev
 ```
 
-| Command         | What it does                       |
-| --------------- | ---------------------------------- |
-| `bun dev`       | Dev server with hot reload         |
-| `bun start`     | Production server                  |
-| `bun run build` | Production build into `dist/`      |
-| `bun test`      | Unit and render tests              |
-| `bun check`     | Type check                         |
+| Command             | What it does                                           |
+| ------------------- | ------------------------------------------------------ |
+| `bun dev`           | Dev server with hot reload                             |
+| `bun start`         | Production server                                      |
+| `bun run build`     | Production build into `dist/`                          |
+| `bun test`          | Unit and render tests                                  |
+| `bun run typecheck` | Type check                                             |
+| `bun run format`    | Format all files with Biome                            |
+| `bun run verify`    | Format check, type check, tests and build (same as CI) |
 
 ## Google sign-in
 
@@ -57,5 +59,17 @@ src/
   services/          Google Drive/Docs client, Google sign-in, Google Doc text format
   domain/            Types, constants, demo data, recipe search and fridge ranking
   i18n/              Translations (lt, en) and the translate function
-  lib/               Browser image helpers
+  lib/               Small helpers: errors, emails, browser images
+styles/
+  globals.css        Design tokens (colors) for Tailwind
 ```
+
+## Styling
+
+All colors are design tokens in `styles/globals.css` (`bg-brand`, `text-ink`, `border-line`, ...).
+Use the token names in class lists. Do not write raw hex values such as `bg-[#3E6B48]`.
+
+## Quality checks
+
+`bun run verify` runs the same steps as the CI workflow in `.github/workflows/ci.yml`.
+Run it before you open a pull request.
