@@ -1,1 +1,2 @@
 - [deployment/](deployment/INDEX.md) — how the app is deployed (Dokploy, Docker, nginx). tags: dokploy, docker, port, build-arg, sourcemap
+- [frontend/](frontend/INDEX.md) — UI and PWA setup. tags: pwa, manifest, service worker, bun html

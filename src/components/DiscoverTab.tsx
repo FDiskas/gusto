@@ -50,11 +50,11 @@ export function DiscoverTab({
         )}
       </div>
 
-      {/* Horizontal Scrollable Tags */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-5 px-5 md:-mx-8 md:px-8 no-scrollbar">
+      {/* Tags wrap onto multiple rows instead of scrolling sideways */}
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setSelectedTag('all')}
-          className={`shrink-0 px-3.5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+          className={`px-3.5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
             selectedTag === 'all' ? 'bg-brand text-white shadow-xs' : 'bg-white border border-line text-ink-soft'
           }`}
         >
@@ -66,7 +66,7 @@ export function DiscoverTab({
             <button
               key={tag.id}
               onClick={() => setSelectedTag(active ? 'all' : tag.id)}
-              className={`shrink-0 px-3.5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 active ? 'bg-brand text-white shadow-xs' : `${tag.bg} ${tag.text}`
               }`}
             >

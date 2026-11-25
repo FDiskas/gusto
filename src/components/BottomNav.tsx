@@ -14,7 +14,7 @@ export function BottomNav({ activeTab, onChange }: { activeTab: AppTab; onChange
   const { t } = useTranslate();
 
   return (
-    <nav className="absolute bottom-0 inset-x-0 bg-surface/95 backdrop-blur-md border-t border-line px-6 py-3 flex items-center justify-around md:justify-center md:gap-16 z-20">
+    <nav className="fixed sm:absolute bottom-0 inset-x-0 bg-surface/95 backdrop-blur-md border-t border-line px-6 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex items-center justify-around md:justify-center md:gap-16 z-20">
       {NAV_ITEMS.map(({ tab, Icon, labelKey }) => {
         const isActive = activeTab === tab;
         return (

@@ -141,7 +141,7 @@ function AppContent() {
   return (
     <>
       <div className="min-h-dvh bg-canvas sm:py-6 flex justify-center">
-        <div className="w-full max-w-md md:max-w-3xl h-dvh sm:h-[calc(100dvh-3rem)] sm:max-h-[900px] bg-surface sm:rounded-[38px] sm:shadow-2xl sm:border sm:border-line flex flex-col relative overflow-hidden">
+        <div className="w-full max-w-md md:max-w-3xl pt-[env(safe-area-inset-top)] h-dvh sm:h-[calc(100dvh-3rem)] sm:max-h-[900px] bg-surface sm:rounded-[38px] sm:shadow-2xl sm:border sm:border-line flex flex-col relative overflow-hidden">
           <StatusBanner isDemo={user.isDemo} syncing={library.syncing} />
 
           <AppHeader
@@ -153,7 +153,7 @@ function AppContent() {
           />
 
           {/* Tabs stay mounted so search text and fridge items survive tab switches */}
-          <main className="flex-1 overflow-y-auto px-5 md:px-8 pb-28">
+          <main className="flex-1 overflow-y-auto overscroll-contain px-5 md:px-8 pb-[calc(7rem+env(safe-area-inset-bottom))]">
             <div hidden={activeTab !== 'discover'}>
               <DiscoverTab
                 recipes={library.recipes}
@@ -172,7 +172,7 @@ function AppContent() {
 
           <button
             onClick={() => setEditingRecipe(null)}
-            className="absolute right-5 md:right-8 bottom-24 z-20 w-13 h-13 rounded-full bg-brand hover:bg-brand-hover active:scale-95 text-white shadow-lg flex items-center justify-center transition-all cursor-pointer"
+            className="fixed sm:absolute right-5 md:right-8 bottom-[calc(6rem+env(safe-area-inset-bottom))] z-20 w-13 h-13 rounded-full bg-brand hover:bg-brand-hover active:scale-95 text-white shadow-lg flex items-center justify-center transition-all cursor-pointer"
             aria-label={t('editor.newTitle')}
           >
             <Plus className="w-6 h-6" />

@@ -1,0 +1,1 @@
+- [pwa-setup](pwa-setup.md) — manifest, sw.js, icons in public/, injected by build.ts. tags: pwa, manifest, service worker, bun
