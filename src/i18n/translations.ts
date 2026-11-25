@@ -10,6 +10,9 @@ export const translations = {
     'nav.discover': 'Atrask',
     'nav.fridge': 'Šaldytuvas',
     'nav.saved': 'Išsaugoti',
+    'header.sync': 'Sinchronizuoti',
+    'header.logout': 'Atsijungti',
+    'header.switchLanguage': 'Keisti kalbą',
 
     // Landing Page
     'landing.badge': 'Šeimos receptai • Google Docs & Drive',
@@ -27,6 +30,9 @@ export const translations = {
     'landing.feature2.desc': 'Pakvieskite šeimos narius el. paštu – visi matys ir galės pildyti tą pačią receptų kolekciją.',
     'landing.feature3.title': 'Iš to, ką turi šaldytuve',
     'landing.feature3.desc': 'Sužymėkite turimus produktus ir akimirksniu raskite, ką galite pagaminti dabar.',
+    'landing.preview.alt': 'Gusto šeimos receptų peržiūra',
+    'landing.preview.file': 'Kepta lašiša.gdoc',
+    'landing.preview.title': 'Kepta lašiša su smidrais',
 
     // Home / Discover
     'home.greeting': 'Ką gaminsi šiandien?',
@@ -64,6 +70,8 @@ export const translations = {
 
     // Recipe Detail
     'recipe.back': 'Atgal',
+    'recipe.docBadge': 'Dokumentas',
+    'recipe.save': 'Išsaugoti receptą',
     'recipe.time': '{{min}} min',
     'recipe.ingredients': 'Ingredientai',
     'recipe.steps': 'Gaminimo eiga',
@@ -90,6 +98,7 @@ export const translations = {
     'editor.field.steps': 'Gaminimo žingsniai (po vieną eilutėje)',
     'editor.save': 'Išsaugoti į Google Drive',
     'editor.saving': 'Saugoma...',
+    'editor.preset.alt': 'Paruošta nuotrauka',
 
     // Family Sharing Modal
     'family.title': 'Šeimos prieiga',
@@ -115,6 +124,7 @@ export const translations = {
     'error.authFailed': 'Nepavyko prisijungti prie Google. Patikrinkite Client ID ir naršyklės nustatymus.',
     'error.photoFailed': 'Nepavyko apdoroti nuotraukos. Pabandykite JPG arba PNG failą.',
     'error.saveFailed': 'Nepavyko išsaugoti recepto. Bandykite dar kartą.',
+    'error.syncFailed': 'Nepavyko sinchronizuoti su Google Drive.',
   },
   en: {
     // Brand & Navigation
@@ -123,6 +133,9 @@ export const translations = {
     'nav.discover': 'Discover',
     'nav.fridge': 'Fridge',
     'nav.saved': 'Saved',
+    'header.sync': 'Sync',
+    'header.logout': 'Log out',
+    'header.switchLanguage': 'Switch language',
 
     // Landing Page
     'landing.badge': 'Family Recipes • Google Docs & Drive',
@@ -140,6 +153,9 @@ export const translations = {
     'landing.feature2.desc': 'Invite family members by email so everyone can view and contribute to the same collection.',
     'landing.feature3.title': 'Cook From Your Fridge',
     'landing.feature3.desc': 'Add ingredients you already have and instantly see which family recipes match best.',
+    'landing.preview.alt': 'Gusto family recipe preview',
+    'landing.preview.file': 'Roasted Salmon.gdoc',
+    'landing.preview.title': 'Roasted Salmon with Asparagus',
 
     // Home / Discover
     'home.greeting': 'What will you cook today?',
@@ -177,6 +193,8 @@ export const translations = {
 
     // Recipe Detail
     'recipe.back': 'Back',
+    'recipe.docBadge': 'Doc',
+    'recipe.save': 'Save recipe',
     'recipe.time': '{{min}} min',
     'recipe.ingredients': 'Ingredients',
     'recipe.steps': 'Instructions',
@@ -203,6 +221,7 @@ export const translations = {
     'editor.field.steps': 'Cooking Steps (one per line)',
     'editor.save': 'Save to Google Drive',
     'editor.saving': 'Saving...',
+    'editor.preset.alt': 'Preset photo',
 
     // Family Sharing Modal
     'family.title': 'Family Access',
@@ -228,6 +247,7 @@ export const translations = {
     'error.authFailed': 'Google Sign-In failed. Please check your Client ID and popup settings.',
     'error.photoFailed': 'Could not process the photo. Try a JPG or PNG file.',
     'error.saveFailed': 'Could not save the recipe. Please try again.',
+    'error.syncFailed': 'Could not sync with Google Drive.',
   },
 } as const;
 

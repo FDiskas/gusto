@@ -61,21 +61,21 @@ export const LandingPage: React.FC<{
           <div className="relative rounded-3xl overflow-hidden shadow-md mb-7 h-52 sm:h-64 md:h-72 group">
             <img
               src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=1000&q=80"
-              alt="Gusto family recipe preview"
+              alt={t('landing.preview.alt')}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
             <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-xs font-semibold text-[#1F2421]">
               <FileText className="w-3.5 h-3.5 text-[#3E6B48]" />
-              <span>Kepta lašiša.gdoc</span>
+              <span>{t('landing.preview.file')}</span>
             </div>
             <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between text-white">
               <div>
                 <p className="text-xs text-white/80 font-medium mb-0.5">{FOLDER_NAME}</p>
-                <p className="text-xl font-bold leading-tight">Kepta lašiša su smidrais</p>
+                <p className="text-xl font-bold leading-tight">{t('landing.preview.title')}</p>
               </div>
               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#3E6B48] text-xs font-semibold shadow-sm">
-                <Clock className="w-3.5 h-3.5" /> 20 min
+                <Clock className="w-3.5 h-3.5" /> {t('recipe.time', { min: 20 })}
               </span>
             </div>
           </div>

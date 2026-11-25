@@ -38,7 +38,7 @@ export const RecipeCard: React.FC<{
           ) : (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/35 backdrop-blur-md text-white/90 text-[11px] font-medium">
               <FileText className="w-3 h-3" />
-              <span>Doc</span>
+              <span>{t('recipe.docBadge')}</span>
             </span>
           )}
         </div>
@@ -47,7 +47,7 @@ export const RecipeCard: React.FC<{
           type="button"
           onClick={(e) => onToggleSave(recipe, e)}
           className="w-9 h-9 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/45 transition-colors cursor-pointer"
-          aria-label="Save recipe"
+          aria-label={t('recipe.save')}
         >
           <Heart className={`w-4.5 h-4.5 ${recipe.saved ? 'fill-[#FF6B6B] text-[#FF6B6B]' : 'text-white'}`} />
         </button>

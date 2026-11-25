@@ -42,7 +42,7 @@ export function AppHeader({ collaboratorCount, syncing, onOpenFamily, onSync, on
           <button
             onClick={onSync}
             className="w-8 h-8 rounded-full bg-white border border-[#E4E1D6] flex items-center justify-center text-[#3D453F] hover:bg-[#F1EFE7] cursor-pointer"
-            title="Sync"
+            title={t('header.sync')}
           >
             <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
           </button>
@@ -51,7 +51,7 @@ export function AppHeader({ collaboratorCount, syncing, onOpenFamily, onSync, on
         <button
           onClick={onLogout}
           className="w-8 h-8 rounded-full bg-white border border-[#E4E1D6] flex items-center justify-center text-[#3D453F] hover:text-red-600 cursor-pointer"
-          title="Logout"
+          title={t('header.logout')}
         >
           <LogOut className="w-3.5 h-3.5" />
         </button>

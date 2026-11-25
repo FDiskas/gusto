@@ -193,7 +193,7 @@ export const RecipeEditorModal: React.FC<{
                   !photoPreview && imageUrl === img ? 'border-[#3E6B48] scale-105' : 'border-transparent opacity-75'
                 }`}
               >
-                <img src={img} alt="Preset" className="w-full h-full object-cover" />
+                <img src={img} alt={t('editor.preset.alt')} className="w-full h-full object-cover" />
               </button>
             ))}
           </div>

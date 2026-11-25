@@ -65,7 +65,7 @@ export function useRecipeLibrary({
         setCollaborators(loadedCollaborators);
         notify(t('toast.synced'));
       } catch (error) {
-        onSyncError(describeError(error) || 'Drive sync failed');
+        onSyncError(describeError(error) || t('error.syncFailed'));
       } finally {
         setSyncing(false);
       }
