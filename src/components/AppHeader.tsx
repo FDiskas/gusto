@@ -20,7 +20,7 @@ export function AppHeader({
   const { t } = useTranslate();
 
   return (
-    <header className="px-5 md:px-8 pt-5 pb-3 flex items-center justify-between">
+    <header className="shrink-0 px-5 md:px-8 pt-5 pb-3 flex items-center justify-between">
       <div className="flex items-center gap-2">
         <span className="text-2xl font-extrabold tracking-tight text-ink">{t('app.name')}</span>
       </div>

@@ -12,7 +12,7 @@
   }
 
   body {
-    @apply min-w-[320px] min-h-screen m-0 bg-canvas text-ink;
+    @apply min-w-[320px] min-h-dvh m-0 bg-canvas text-ink;
     overscroll-behavior-y: none;
     -webkit-tap-highlight-color: transparent;
   }

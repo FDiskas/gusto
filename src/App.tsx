@@ -79,6 +79,11 @@ function AppContent() {
     void restoreSession();
   }, []);
 
+  /** The landing page can be scrolled down when the user logs in. The app shell must start at the top so the header is visible. */
+  useEffect(() => {
+    if (user) window.scrollTo(0, 0);
+  }, [user]);
+
   const handleGoogleLogin = async () => {
     setAuthError(null);
     if (!clientId.trim()) {
@@ -140,7 +145,7 @@ function AppContent() {
 
   return (
     <>
-      <div className="min-h-dvh bg-canvas sm:py-6 flex justify-center">
+      <div className="h-dvh overflow-hidden bg-canvas sm:py-6 flex justify-center">
         <div className="w-full max-w-md md:max-w-3xl pt-[env(safe-area-inset-top)] h-dvh sm:h-[calc(100dvh-3rem)] sm:max-h-[900px] bg-surface sm:rounded-[38px] sm:shadow-2xl sm:border sm:border-line flex flex-col relative overflow-hidden">
           <StatusBanner isDemo={user.isDemo} syncing={library.syncing} />
 
