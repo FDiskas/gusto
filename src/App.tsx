@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 import { BottomNav, type AppTab } from '@/components/BottomNav';
@@ -18,7 +18,8 @@ import { useRecipeLibrary } from '@/hooks/useRecipeLibrary';
 import { useToast } from '@/hooks/useToast';
 import { I18nProvider, useTranslate } from '@/i18n';
 import { GoogleDriveDocsService } from '@/services/google-drive';
-import { requestGoogleAccess } from '@/services/google-identity';
+import { requestGoogleAccess, type GoogleAccess } from '@/services/google-identity';
+import { clearGoogleSession, isSessionActive, loadGoogleSession, saveGoogleSession } from '@/services/google-session';
 
 export default function App() {
   return (
@@ -34,7 +35,8 @@ function AppContent() {
   const { clientId, setClientId, isFromEnv } = useGoogleClientId();
 
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [authLoading, setAuthLoading] = useState(false);
+  /** Starts true when a stored Google session is about to be restored, so the landing page does not flash */
+  const [authLoading, setAuthLoading] = useState(() => loadGoogleSession() !== null);
   const [authError, setAuthError] = useState<string | null>(null);
 
   const library = useRecipeLibrary({ userName: user?.name, notify, onSyncError: setAuthError });
@@ -47,6 +49,36 @@ function AppContent() {
 
   const activeRecipe = library.recipes.find((recipe) => recipe.id === activeRecipeId) ?? null;
 
+  const startGoogleSession = async (access: GoogleAccess) => {
+    saveGoogleSession(access);
+    setUser({
+      name: access.profile.name || 'Google User',
+      email: access.profile.email || '',
+      avatar: access.profile.picture,
+      isDemo: false,
+    });
+    await library.connectGoogle(new GoogleDriveDocsService(access.accessToken));
+  };
+
+  useEffect(() => {
+    const stored = loadGoogleSession();
+    if (!stored) return;
+
+    const restoreSession = async () => {
+      try {
+        const access = isSessionActive(stored)
+          ? stored
+          : await requestGoogleAccess(clientId, { prompt: 'none', loginHint: stored.profile.email });
+        await startGoogleSession(access);
+      } catch {
+        clearGoogleSession();
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+    void restoreSession();
+  }, []);
+
   const handleGoogleLogin = async () => {
     setAuthError(null);
     if (!clientId.trim()) {
@@ -56,14 +88,7 @@ function AppContent() {
 
     setAuthLoading(true);
     try {
-      const { accessToken, profile } = await requestGoogleAccess(clientId.trim());
-      setUser({
-        name: profile.name || 'Google User',
-        email: profile.email || '',
-        avatar: profile.picture,
-        isDemo: false,
-      });
-      await library.connectGoogle(new GoogleDriveDocsService(accessToken));
+      await startGoogleSession(await requestGoogleAccess(clientId.trim()));
     } catch {
       setAuthError(t('error.authFailed'));
     } finally {
@@ -78,6 +103,7 @@ function AppContent() {
   };
 
   const handleLogout = () => {
+    clearGoogleSession();
     setUser(null);
     library.disconnect();
     setActiveRecipeId(null);

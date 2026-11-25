@@ -19,3 +19,4 @@ updated: 2026-11-26
 ### How to apply
 - Add a new `BUN_PUBLIC_*` variable: add `ARG` and `ENV` in the `Dockerfile`, then set it as a Build-time Argument in Dokploy.
 - Add the production URL to Google OAuth Authorized JavaScript origins.
+- `bun run format` also rewrites `.claude/memory/*.md` and breaks the front matter (blank line after the first `---`). Revert those files after formatting.
